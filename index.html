@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive CV - Matjane Mpheto Joseph</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Warm Neutrals with a blue accent -->
+    <!-- Application Structure Plan: A single-page application with a fixed sidebar for navigation and a main content area for different sections (Home, Timeline, Skills, Contact). This structure provides easy, non-linear access to all key information. The user can either scroll naturally or use the navigation to jump to specific points of interest. An interactive timeline for work experience provides a visual narrative of career progression, while a skills chart offers a quick, high-level summary of expertise. This is more engaging and digestible than a traditional, linear CV. -->
+    <!-- Visualization & Content Choices: 
+        - Report Info: Career History -> Goal: Show change over time -> Viz/Presentation: Interactive Vertical Timeline (HTML/CSS/JS) -> Interaction: Click to expand/collapse job details -> Justification: Makes a long work history easy to scan while keeping details accessible, preventing information overload.
+        - Report Info: Certifications -> Goal: Compare/Organize Skills -> Viz/Presentation: Doughnut Chart (Chart.js/Canvas) & Collapsible Lists (HTML/CSS/JS) -> Interaction: Chart for visual summary, lists for detailed exploration -> Justification: The chart gives an immediate sense of the skill distribution (IT vs. Business vs. Security). The collapsible lists provide depth without cluttering the UI.
+        - Report Info: Contact/Summary -> Goal: Inform/Introduce -> Viz/Presentation: Structured text and icon blocks (HTML/Tailwind) -> Interaction: Standard links and hover effects -> Justification: Presents a clear and professional introduction to the candidate. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f5f5f4; /* stone-100 */
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 450px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 400px;
+            }
+        }
+        .nav-link.active {
+            background-color: #3b82f6; /* blue-500 */
+            color: white;
+            font-weight: 700;
+        }
+        .timeline-item-content {
+            transition: max-height 0.5s ease-in-out, padding 0.5s ease-in-out;
+            max-height: 0;
+            overflow: hidden;
+        }
+        .timeline-item-content.open {
+            max-height: 1000px; /* Adjust as needed */
+        }
+    </style>
+</head>
+<body class="text-stone-800">
+
+    <div class="flex flex-col md:flex-row min-h-screen">
+        
+        <nav id="sidebar" class="w-full md:w-64 bg-stone-800 text-white p-4 md:fixed md:h-full flex flex-col items-center md:items-start z-10">
+            <div class="text-center md:text-left mb-8 mt-4">
+                <h1 class="text-2xl font-bold">Matjane M. Joseph</h1>
+                <p class="text-sm text-stone-400">IT & Management Professional</p>
+            </div>
+            <ul class="w-full flex md:flex-col justify-center">
+                <li><a href="#home" class="nav-link block p-3 rounded-lg text-center md:text-left hover:bg-stone-700 transition duration-300">Home</a></li>
+                <li><a href="#timeline" class="nav-link block p-3 rounded-lg text-center md:text-left hover:bg-stone-700 transition duration-300">Experience</a></li>
+                <li><a href="#skills" class="nav-link block p-3 rounded-lg text-center md:text-left hover:bg-stone-700 transition duration-300">Skills & Education</a></li>
+                <li><a href="#contact" class="nav-link block p-3 rounded-lg text-center md:text-left hover:bg-stone-700 transition duration-300">Contact</a></li>
+            </ul>
+        </nav>
+
+        <main class="w-full md:ml-64 p-4 sm:p-8">
+            
+            <section id="home" class="min-h-screen flex items-center bg-white rounded-xl shadow-md p-8">
+                <div>
+                    <h2 class="text-4xl md:text-6xl font-bold text-stone-900 mb-4">Matjane Mpheto Joseph</h2>
+                    <h3 class="text-xl md:text-2xl text-blue-600 font-semibold mb-6">Versatile Professional in IT, Management, and Security</h3>
+                    <p class="text-lg text-stone-600 leading-relaxed max-w-4xl">
+                        Highly accomplished professional with extensive experience leading operations, managing projects, and implementing strategic initiatives across diverse industries including Business Support, Private Security, Contract Cleaning, and Mining. Holds a BSc in Informatics, multiple IT and Business Management certifications, and comprehensive security qualifications. Adept at leveraging technology to optimize business processes, enhance security systems, and drive operational efficiency. Seeking to apply a strong blend of technical expertise, leadership skills, and a commitment to continuous improvement in a challenging new role.
+                    </p>
+                </div>
+            </section>
+
+            <section id="timeline" class="pt-24 -mt-16">
+                 <div class="bg-white rounded-xl shadow-md p-8">
+                    <h2 class="text-3xl font-bold mb-8 text-center">Career Timeline</h2>
+                    <p class="text-center text-stone-600 mb-12 max-w-3xl mx-auto">This timeline provides a chronological overview of my professional journey. Click on any role to expand and view the detailed responsibilities and accomplishments associated with that position. This interactive format is designed to help you easily navigate my work history and understand the progression of my skills and leadership experience.</p>
+                    <div id="experience-timeline-container" class="relative border-l-2 border-blue-400 ml-6 md:ml-0 md:pl-4">
+                    </div>
+                 </div>
+            </section>
+
+            <section id="skills" class="pt-24 -mt-16">
+                <div class="bg-white rounded-xl shadow-md p-8">
+                    <h2 class="text-3xl font-bold mb-8 text-center">Skills, Education & Certifications</h2>
+                    <p class="text-center text-stone-600 mb-12 max-w-3xl mx-auto">This section highlights my core competencies, formal education, and professional certifications. The chart provides a quick visual summary of my certified skills across key domains. Below, you can explore detailed, collapsible lists of my degree modules and certifications to gain a deeper understanding of my qualifications.</p>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                        <div class="chart-container">
+                            <canvas id="skillsChart"></canvas>
+                        </div>
+                        <div>
+                            <div id="qualifications-container">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="contact" class="pt-24 -mt-16">
+                <div class="bg-white rounded-xl shadow-md p-8 text-center">
+                    <h2 class="text-3xl font-bold mb-4">Get In Touch</h2>
+                    <p class="text-stone-600 mb-8">Feel free to reach out. I am open to discussing new opportunities.</p>
+                    <div class="flex flex-col sm:flex-row justify-center items-center gap-8">
+                        <div class="flex items-center gap-3">
+                            <span class="text-blue-500 text-2xl">●</span>
+                            <a href="tel:0837103515" class="text-lg hover:text-blue-600 transition">083 710 3515</a>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <span class="text-blue-500 text-2xl">●</span>
+                            <a href="mailto:matjanemj@gmail.com" class="text-lg hover:text-blue-600 transition">matjanemj@gmail.com</a>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    
+    const experienceData = [
+        {
+            role: "Pit Supervisor",
+            company: "Dust-A-Side | Mining",
+            duration: "Nov 2024 – Current",
+            details: [
+                "Chair all staff and safety meetings, ensuring compliance with relevant Acts.",
+                "Perform administrative functions for the shift and monitor resource use.",
+                "Declare work areas safe before operations commence.",
+                "Address equipment breakdowns and ensure employee certifications.",
+                "Participate in DMR and mine safety inspections."
+            ]
+        },
+        {
+            role: "Manager",
+            company: "Reakhum Services | Business Support",
+            duration: "May 2021 – Jan 2023",
+            details: [
+                "Spearheaded new business generation, including web design and hosting.",
+                "Provided comprehensive desktop support and managed customer complaints.",
+                "Managed accounts, revenue collection, and legislative compliance.",
+                "Successfully raised funds and resources for the company."
+            ]
+        },
+        {
+            role: "Operations Manager",
+            company: "Gubis85 Solutions | Private Security",
+            duration: "Jul 2019 – May 2021",
+            details: [
+                "Established and managed new security projects and systems.",
+                "Trained employees, consulted with clients, and resolved queries.",
+                "Handled industrial relations, including CCMA representation and wage negotiations.",
+                "Developed in-house security monitoring systems and managed CCTV."
+            ]
+        },
+        {
+            role: "Operations Manager",
+            company: "Hlehle-Lwazi2013 Solutions | Contract Cleaning",
+            duration: "Aug 2016 – Jun 2019",
+            details: [
+                "Managed contract cleaning and laundry projects.",
+                "Consulted with client managers and resolved queries.",
+                "Represented the company in CCMA cases and dealt with labor unions.",
+                "Developed and maintained a web-based contract management system."
+            ]
+        },
+        {
+            role: "General Manager",
+            company: "Jackcliffy Trading | Private Security",
+            duration: "Oct 2013 – Jul 2016",
+            details: [
+                "Implemented executive decisions and developed business plans.",
+                "Resolved high-level project problems and prepared monthly reports.",
+                "Consulted with key stakeholders like labor unions and local communities."
+            ]
+        },
+        {
+            role: "Finance and Administration Manager",
+            company: "Jackcliffy Trading | Private Security",
+            duration: "Feb 2013 – Sep 2013",
+            details: [
+                "Managed all company procedures, regulations, and budgets.",
+                "Developed corporate identity, filing systems, and operations manuals.",
+                "Produced all financial and administrative reports."
+            ]
+        },
+        {
+            role: "Payroll Manager",
+            company: "Jackcliffy Trading | Private Security",
+            duration: "Feb 2011 – Jan 2013",
+            details: [
+                "Developed HR systems and processed salaries & wages.",
+                "Managed UIF/COIDA declarations and provident fund claims.",
+                "Processed PSIRA engagements and terminations."
+            ]
+        },
+        {
+            role: "IT and Business Support Officer",
+            company: "Jackcliffy Trading | Private Security",
+            duration: "Feb 2009 – Jan 2011",
+            details: [
+                "Managed domain registration, web design, development, and hosting.",
+                "Provided software and network troubleshooting support.",
+                "Maintained the office server and assisted technical service providers."
+            ]
+        },
+        {
+            role: "Technician",
+            company: "Newday Business Enterprise | IT",
+            duration: "Jan 2005 – Jan 2009",
+            details: [
+                "Troubleshot and repaired PCs and networks.",
+                "Performed graphic design and provided secretarial services.",
+                "Engaged with suppliers and service providers."
+            ]
+        },
+    ];
+
+    const timelineContainer = document.getElementById('experience-timeline-container');
+    experienceData.forEach((job, index) => {
+        const item = document.createElement('div');
+        item.className = 'mb-8 timeline-item';
+        item.innerHTML = `
+            <div class="flex items-center mb-1 cursor-pointer timeline-item-header">
+                <div class="absolute -left-3.5 bg-blue-500 h-6 w-6 rounded-full border-4 border-white"></div>
+                <div class="ml-8 md:ml-6 w-full">
+                    <h4 class="text-xl font-bold">${job.role}</h4>
+                    <p class="text-md text-stone-600">${job.company}</p>
+                    <p class="text-sm text-stone-500">${job.duration}</p>
+                </div>
+                <span class="ml-auto text-blue-500 text-2xl transform transition-transform duration-300">&#x25BC;</span>
+            </div>
+            <div class="ml-8 md:ml-6 pl-4 border-l-2 border-stone-200 timeline-item-content">
+                <ul class="list-disc list-inside text-stone-600 mt-2 space-y-1 py-4">
+                    ${job.details.map(d => `<li>${d}</li>`).join('')}
+                </ul>
+            </div>
+        `;
+        timelineContainer.appendChild(item);
+    });
+
+    document.querySelectorAll('.timeline-item-header').forEach(header => {
+        header.addEventListener('click', () => {
+            const content = header.nextElementSibling;
+            const arrow = header.querySelector('span');
+            content.classList.toggle('open');
+            arrow.classList.toggle('rotate-180');
+        });
+    });
+
+    const qualifications = {
+        "BSc Degree: Informatics (UNISA, 2024)": {
+            "Information Technology Modules": ["Advanced Systems Development", "Computer Networks I", "Database Design and Implementation", "Human-Computer Interaction II", "Software Project Management", "etc."],
+            "Management Modules": ["Business Management IA & IB", "Corporate Governance", "Corporate Entrepreneurship", "General Management", "Strategic Planning", "etc."]
+        },
+        "IT Certifications": {
+            "Details": [
+                "CompTIA Network+", 
+                "Azure Fundamentals", 
+                "Windows Server Admin", 
+                "Microsoft 365 Fundamentals", 
+                "React Native", 
+                "HTML", 
+                "MS Office Instructor",
+                "Cybersecurity Essentials (LFC108)",
+                "Introduction to Linux (LFS101)",
+                "Open Source and the 5G Transition (LFS111)"
+            ]
+        },
+        "Business Management Certifications": {
+            "Details": ["VIP Payroll Premier", "Pastel Certified Trainer", "Pastel Partner Practitioner", "Business Skills Training"]
+        },
+        "Private Security Certifications": {
+            "Details": ["PSIRA Grade A, CIT & Response", "Firearm for Business Use", "Control Room Operations", "Armed Reaction", "Grade A"]
+        }
+    };
+    
+    const qualificationsContainer = document.getElementById('qualifications-container');
+    for (const [title, details] of Object.entries(qualifications)) {
+        const item = document.createElement('div');
+        item.className = 'mb-4 border rounded-lg overflow-hidden';
+        
+        let detailsHtml = '';
+        for (const [subtitle, items] of Object.entries(details)) {
+            detailsHtml += `<h5 class="font-semibold text-stone-700 mt-3 mb-1 px-4">${subtitle}</h5><ul class="list-disc list-inside text-stone-600 space-y-1 px-4 pb-4">
+                ${items.map(i => `<li>${i}</li>`).join('')}
+            </ul>`;
+        }
+
+        item.innerHTML = `
+            <div class="p-4 bg-stone-100 cursor-pointer flex justify-between items-center qualification-header">
+                <h4 class="font-bold text-lg">${title}</h4>
+                <span class="text-blue-500 text-2xl transform transition-transform duration-300">&#x25BC;</span>
+            </div>
+            <div class="timeline-item-content bg-white">
+                ${detailsHtml}
+            </div>
+        `;
+        qualificationsContainer.appendChild(item);
+    }
+    
+    document.querySelectorAll('.qualification-header').forEach(header => {
+        header.addEventListener('click', () => {
+            const content = header.nextElementSibling;
+            const arrow = header.querySelector('span');
+            content.classList.toggle('open');
+            arrow.classList.toggle('rotate-180');
+        });
+    });
+
+
+    const ctx = document.getElementById('skillsChart').getContext('2d');
+    const skillsChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Information Technology', 'Business Management', 'Private Security'],
+            datasets: [{
+                label: 'Number of Certifications',
+                data: [10, 4, 5], /* Updated IT Certifications count from 7 to 10 */
+                backgroundColor: [
+                    'rgba(59, 130, 246, 0.8)', // blue-500
+                    'rgba(168, 162, 158, 0.8)', // stone-400
+                    'rgba(120, 113, 108, 0.8)' // stone-500
+                ],
+                borderColor: [
+                    'rgba(59, 130, 246, 1)',
+                    'rgba(168, 162, 158, 1)',
+                    'rgba(120, 113, 108, 1)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'top',
+                },
+                title: {
+                    display: true,
+                    text: 'Certification Distribution by Domain'
+                }
+            }
+        }
+    });
+
+    const sections = document.querySelectorAll('section');
+    const navLinks = document.querySelectorAll('.nav-link');
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                navLinks.forEach(link => {
+                    link.classList.remove('active');
+                    if (link.getAttribute('href').substring(1) === entry.target.id) {
+                        link.classList.add('active');
+                    }
+                });
+            }
+        });
+    }, { rootMargin: '-50% 0px -50% 0px' });
+
+    sections.forEach(section => {
+        observer.observe(section);
+    });
+
+});
+</script>
+</body>
+</html>
